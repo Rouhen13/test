@@ -604,6 +604,12 @@ body::before {
     color: var(--text-secondary);
 }
 
+.boss-warning {
+    color: var(--accent-glow) !important;
+    font-weight: 600;
+    font-size: 0.8rem !important;
+}
+
 .boss-banner .btn {
     width: auto;
     padding: 12px 28px;

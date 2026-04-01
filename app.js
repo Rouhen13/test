@@ -63,8 +63,9 @@ const DEFAULT_STATE = {
     lastPlayDate: null,
     dailyQuests: [],
     dailySeed: null,
-    bossDefeatedToday: false,
     inventory: {},
+    nextBossLevel: 3,       // Boss appears at this level
+    bossPending: false,      // True when boss is waiting to be fought
 };
 
 let state = loadState();
@@ -168,7 +169,6 @@ function addCustomQuest() {
     showToast('Quête ajoutée !', 'success', '\u{1F4DC}');
     renderQuests();
     renderSuggestions();
-    checkBossUnlock();
 }
 
 function addSuggestedQuest(index) {
@@ -203,7 +203,6 @@ function addSuggestedQuest(index) {
     showToast(`${suggestion.icon} ${suggestion.title} ajoutée !`, 'success', '\u2705');
     renderQuests();
     renderSuggestions();
-    checkBossUnlock();
 }
 
 function removeQuest(index) {
@@ -213,7 +212,6 @@ function removeQuest(index) {
     saveState();
     renderQuests();
     renderSuggestions();
-    checkBossUnlock();
 }
 
 // ===== XP & Level =====
@@ -232,10 +230,16 @@ function addXp(amount) {
         state.gold += 50;
         state.totalGold += 50;
         showLevelUp(state.level);
+
+        // Check if boss should appear at this level
+        if (state.level >= state.nextBossLevel) {
+            state.bossPending = true;
+        }
     }
 
     saveState();
     updateUI();
+    updateBossBanner();
 }
 
 function addGold(amount) {
@@ -243,6 +247,7 @@ function addGold(amount) {
     state.totalGold += amount;
     saveState();
     updateUI();
+    renderShop();
 }
 
 // ===== Quest Actions =====
@@ -262,7 +267,6 @@ function progressQuest(index) {
 
     saveState();
     renderQuests();
-    checkBossUnlock();
 }
 
 function claimReward(index) {
@@ -281,41 +285,29 @@ function claimReward(index) {
 
     saveState();
     renderQuests();
-    checkBossUnlock();
 }
 
 // ===== Boss System =====
-function checkBossUnlock() {
+function updateBossBanner() {
     const banner = document.getElementById('boss-banner');
-    const quests = state.dailyQuests;
+    const bossInfo = document.getElementById('boss-banner-level');
 
-    if (quests.length === 0 || state.bossDefeatedToday) {
-        banner.classList.add('hidden');
-        return;
-    }
-
-    const allClaimed = quests.length > 0 && quests.every(q => q.claimed);
-    if (allClaimed) {
+    if (state.bossPending) {
         banner.classList.remove('hidden');
+        if (bossInfo) bossInfo.textContent = `Niveau ${state.nextBossLevel}`;
     } else {
         banner.classList.add('hidden');
     }
 }
 
-function getBossForToday() {
-    // Pick a boss based on day + player level
-    const seed = getTodaySeed();
-    let h = 0;
-    for (let i = 0; i < seed.length; i++) {
-        h = Math.imul(31, h) + seed.charCodeAt(i) | 0;
-    }
-    // Scale boss with level
-    const maxIndex = Math.min(Math.floor(state.level / 2), BOSSES.length - 1);
-    const bossIndex = Math.abs(h) % (maxIndex + 1);
+function getBossForLevel() {
+    // Pick a boss based on nextBossLevel
+    const bossNum = Math.floor(state.nextBossLevel / 3); // 1, 2, 3...
+    const bossIndex = Math.min(bossNum - 1, BOSSES.length - 1);
     const base = BOSSES[bossIndex];
 
-    // Scale HP and ATK with player level
-    const scale = 1 + (state.level - 1) * 0.15;
+    // Scale with player level
+    const scale = 1 + (state.level - 1) * 0.18;
     return {
         ...base,
         hp: Math.floor(base.hp * scale),
@@ -327,7 +319,9 @@ function getBossForToday() {
 }
 
 function startBossFight() {
-    const boss = getBossForToday();
+    if (!state.bossPending) return;
+
+    const boss = getBossForLevel();
     const playerMaxHp = 80 + state.level * 20;
 
     bossState = {
@@ -341,6 +335,7 @@ function startBossFight() {
 
     // Setup UI
     document.getElementById('boss-name').textContent = boss.name;
+    document.getElementById('boss-subtitle').textContent = `Boss de niveau ${state.nextBossLevel}`;
     document.getElementById('boss-sprite').textContent = boss.icon;
     document.getElementById('boss-hp-text').textContent = `${boss.hp} / ${boss.maxHp}`;
     document.getElementById('boss-hp-bar').style.width = '100%';
@@ -354,6 +349,7 @@ function startBossFight() {
     document.getElementById('boss-special-btn').disabled = false;
 
     addCombatLog(`${boss.icon} ${boss.name} apparaît ! (${boss.hp} PV, ${boss.atk} ATK)`, 'info');
+    addCombatLog(`Votre or en jeu : ${state.gold} \u{1FA99}`, 'info');
     addCombatLog('Choisissez votre action !', 'info');
 
     document.getElementById('boss-modal').classList.remove('hidden');
@@ -483,8 +479,9 @@ function bossTurn() {
 
 function bossVictory() {
     const boss = bossState.boss;
-    state.bossDefeatedToday = true;
     state.bossesDefeated = (state.bossesDefeated || 0) + 1;
+    state.bossPending = false;
+    state.nextBossLevel = state.nextBossLevel + 3; // Next boss in 3 levels
 
     document.getElementById('boss-arena').style.display = 'none';
     document.getElementById('boss-result').classList.remove('hidden');
@@ -492,19 +489,24 @@ function bossVictory() {
     document.getElementById('boss-result-title').textContent = `${boss.name} vaincu !`;
     document.getElementById('boss-result-title').style.color = 'var(--accent-glow)';
     document.getElementById('boss-result-rewards').innerHTML =
-        `+${boss.goldReward} \u{1FA99} Or &nbsp;&nbsp; +${boss.xpReward} \u2B50 XP`;
+        `+${boss.goldReward} \u{1FA99} Or &nbsp;&nbsp; +${boss.xpReward} \u2B50 XP<br><small>Prochain boss au niveau ${state.nextBossLevel}</small>`;
 
     addGold(boss.goldReward);
     addXp(boss.xpReward);
     saveState();
-    checkBossUnlock();
+    updateBossBanner();
 }
 
 function bossDefeat() {
     const boss = bossState.boss;
-    // Still get partial rewards on loss
-    const partialGold = Math.floor(boss.goldReward * 0.2);
-    const partialXp = Math.floor(boss.xpReward * 0.2);
+    const lostGold = state.gold;
+
+    // Lose ALL gold
+    state.gold = 0;
+
+    // Boss comes back 1 level later (not now, must level up once)
+    state.bossPending = false;
+    state.nextBossLevel = state.level + 1; // Retry after gaining 1 level
 
     document.getElementById('boss-arena').style.display = 'none';
     document.getElementById('boss-result').classList.remove('hidden');
@@ -512,21 +514,21 @@ function bossDefeat() {
     document.getElementById('boss-result-title').textContent = 'Défaite...';
     document.getElementById('boss-result-title').style.color = 'var(--danger)';
     document.getElementById('boss-result-rewards').innerHTML =
-        `Récompense de consolation : +${partialGold} \u{1FA99} +${partialXp} \u2B50 XP`;
+        `<span style="color:var(--danger)">-${lostGold} \u{1FA99} Tout votre or est perdu !</span><br>` +
+        `<small>${boss.name} reviendra au niveau ${state.nextBossLevel}.</small><br>` +
+        `<small>Gagnez de l'XP pour monter de niveau et retenter votre chance !</small>`;
 
-    addGold(partialGold);
-    addXp(partialXp);
-
-    // Allow retry
-    state.bossDefeatedToday = false;
     saveState();
-    checkBossUnlock();
+    updateUI();
+    updateBossBanner();
+    renderShop();
 }
 
 function closeBoss() {
     document.getElementById('boss-modal').classList.add('hidden');
     bossState = null;
     updateUI();
+    updateBossBanner();
 }
 
 // ===== Shop =====
@@ -764,7 +766,7 @@ function init() {
     renderSuggestions();
     renderShop();
     renderInventory();
-    checkBossUnlock();
+    updateBossBanner();
     updateCountdown();
     setInterval(updateCountdown, 1000);
 }
