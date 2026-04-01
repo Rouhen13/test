@@ -42,6 +42,49 @@
             </div>
         </div>
 
+        <!-- Boss Modal -->
+        <div id="boss-modal" class="modal hidden">
+            <div class="modal-content boss-modal-content">
+                <div id="boss-arena">
+                    <div class="boss-header">
+                        <h2 id="boss-name">Dragon Ancien</h2>
+                        <span id="boss-subtitle" class="boss-subtitle">Boss du jour</span>
+                    </div>
+                    <div class="boss-sprite" id="boss-sprite">&#x1F409;</div>
+                    <div class="boss-hp-section">
+                        <div class="boss-hp-label">
+                            <span>PV du Boss</span>
+                            <span id="boss-hp-text">500 / 500</span>
+                        </div>
+                        <div class="boss-hp-bar-container">
+                            <div id="boss-hp-bar" class="boss-hp-bar" style="width:100%"></div>
+                        </div>
+                    </div>
+                    <div class="boss-player-section">
+                        <div class="boss-player-hp-label">
+                            <span>Vos PV</span>
+                            <span id="player-hp-text">100 / 100</span>
+                        </div>
+                        <div class="player-hp-bar-container">
+                            <div id="player-hp-bar" class="player-hp-bar" style="width:100%"></div>
+                        </div>
+                    </div>
+                    <div id="boss-combat-log" class="boss-combat-log"></div>
+                    <div class="boss-actions">
+                        <button id="boss-attack-btn" class="btn btn-danger" onclick="bossAttack()">&#9876; Attaquer</button>
+                        <button id="boss-defend-btn" class="btn btn-primary" onclick="bossDefend()">&#x1F6E1; Défendre</button>
+                        <button id="boss-special-btn" class="btn btn-legendary" onclick="bossSpecial()">&#11088; Spécial</button>
+                    </div>
+                </div>
+                <div id="boss-result" class="boss-result hidden">
+                    <div id="boss-result-icon" class="boss-result-icon"></div>
+                    <h2 id="boss-result-title"></h2>
+                    <p id="boss-result-rewards"></p>
+                    <button class="btn btn-primary" onclick="closeBoss()">Continuer</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Main Content -->
         <main class="main-content">
             <!-- Stats Panel -->
@@ -68,10 +111,10 @@
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon">&#11088;</div>
+                    <div class="stat-icon">&#x1F479;</div>
                     <div class="stat-info">
-                        <span class="stat-value" id="total-xp-earned">0</span>
-                        <span class="stat-label">XP total gagné</span>
+                        <span class="stat-value" id="bosses-defeated">0</span>
+                        <span class="stat-label">Boss vaincus</span>
                     </div>
                 </div>
             </section>
@@ -82,11 +125,83 @@
                 <span id="countdown-timer">--:--:--</span>
             </div>
 
+            <!-- Add Quest Form -->
+            <section class="add-quest-section">
+                <h2 class="section-title">Ajouter une Quête</h2>
+                <div class="add-quest-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="quest-name">Nom de la quête</label>
+                            <input type="text" id="quest-name" placeholder="Ex: Courir 5km" maxlength="50">
+                        </div>
+                        <div class="form-group">
+                            <label for="quest-description">Description</label>
+                            <input type="text" id="quest-description" placeholder="Ex: Faire un jogging de 5km" maxlength="100">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="quest-target">Objectif (nombre)</label>
+                            <input type="number" id="quest-target" value="1" min="1" max="10000">
+                        </div>
+                        <div class="form-group">
+                            <label for="quest-difficulty">Difficulté</label>
+                            <select id="quest-difficulty">
+                                <option value="easy">Facile (10 or / 20 XP)</option>
+                                <option value="medium">Moyen (25 or / 40 XP)</option>
+                                <option value="hard">Difficile (45 or / 70 XP)</option>
+                                <option value="legendary">Légendaire (100 or / 150 XP)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="quest-icon">Icône</label>
+                            <select id="quest-icon">
+                                <option value="&#x1F3AF;">&#x1F3AF; Cible</option>
+                                <option value="&#x1F4AA;">&#x1F4AA; Muscle</option>
+                                <option value="&#x1F4DA;">&#x1F4DA; Livres</option>
+                                <option value="&#x1F4BB;">&#x1F4BB; Ordinateur</option>
+                                <option value="&#x1F3C3;">&#x1F3C3; Course</option>
+                                <option value="&#x1F9D8;">&#x1F9D8; Méditation</option>
+                                <option value="&#x1F3A8;">&#x1F3A8; Art</option>
+                                <option value="&#x1F4DD;">&#x1F4DD; Écriture</option>
+                                <option value="&#x1F525;">&#x1F525; Feu</option>
+                                <option value="&#x2B50;">&#x2B50; Étoile</option>
+                                <option value="&#x1F966;">&#x1F966; Santé</option>
+                                <option value="&#x1F6B6;">&#x1F6B6; Marche</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-add-quest" onclick="addCustomQuest()">+ Ajouter la quête</button>
+                </div>
+                <!-- Suggested quests -->
+                <div class="suggested-quests">
+                    <p class="suggested-label">Suggestions rapides :</p>
+                    <div id="suggested-quests-list" class="suggested-list"></div>
+                </div>
+            </section>
+
             <!-- Daily Quests -->
             <section class="quests-section">
-                <h2 class="section-title">Quêtes du Jour</h2>
+                <div class="section-header">
+                    <h2 class="section-title">Mes Quêtes du Jour</h2>
+                    <span id="quest-count" class="quest-count">0 quête(s)</span>
+                </div>
                 <div id="daily-quests" class="quests-grid">
-                    <!-- Generated by JS -->
+                    <div class="empty-quests">
+                        <p>&#x1F4DC; Aucune quête pour l'instant.</p>
+                        <p>Ajoutez des quêtes ci-dessus ou choisissez une suggestion !</p>
+                    </div>
+                </div>
+                <!-- Boss unlock banner -->
+                <div id="boss-banner" class="boss-banner hidden">
+                    <div class="boss-banner-content">
+                        <span class="boss-banner-icon">&#x1F479;</span>
+                        <div class="boss-banner-text">
+                            <strong>Toutes les quêtes terminées !</strong>
+                            <span>Un boss est apparu. Êtes-vous prêt à l'affronter ?</span>
+                        </div>
+                        <button class="btn btn-danger" onclick="startBossFight()">Combattre le Boss</button>
+                    </div>
                 </div>
             </section>
 
@@ -94,7 +209,6 @@
             <section class="shop-section">
                 <h2 class="section-title">Boutique</h2>
                 <div id="shop-items" class="shop-grid">
-                    <!-- Generated by JS -->
                 </div>
             </section>
 

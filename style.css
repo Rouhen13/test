@@ -231,6 +231,148 @@ body::before {
     border-left: 3px solid var(--accent);
 }
 
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0;
+}
+
+.section-header .section-title {
+    margin-bottom: 20px;
+}
+
+.quest-count {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    background: rgba(255,255,255,0.06);
+    padding: 4px 12px;
+    border-radius: 12px;
+}
+
+/* ===== Add Quest Form ===== */
+.add-quest-section {
+    margin-bottom: 32px;
+}
+
+.add-quest-form {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 24px;
+    border: 1px solid rgba(255,255,255,0.06);
+    margin-bottom: 16px;
+}
+
+.form-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.form-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-group input,
+.form-group select {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-family: inherit;
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--xp-color);
+    box-shadow: 0 0 0 3px rgba(123,104,238,0.15);
+}
+
+.form-group input::placeholder {
+    color: rgba(167,169,190,0.5);
+}
+
+.form-group select option {
+    background: var(--bg-card);
+    color: var(--text-primary);
+}
+
+.btn-add-quest {
+    width: 100%;
+    font-size: 1rem;
+    padding: 12px;
+}
+
+/* Suggested quests */
+.suggested-quests {
+    margin-top: 8px;
+}
+
+.suggested-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.suggested-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.suggested-chip {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-primary);
+}
+
+.suggested-chip:hover {
+    background: rgba(123,104,238,0.15);
+    border-color: var(--xp-color);
+    transform: translateY(-1px);
+}
+
+.suggested-chip.used {
+    opacity: 0.35;
+    pointer-events: none;
+}
+
+/* Empty quests */
+.empty-quests {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--text-secondary);
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    border: 2px dashed rgba(255,255,255,0.08);
+}
+
+.empty-quests p:first-child {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+}
+
 /* ===== Quests ===== */
 .quests-section {
     margin-bottom: 48px;
@@ -263,12 +405,36 @@ body::before {
 }
 
 .quest-card.completed::after {
-    content: '&#10003;';
+    content: '\2713';
     position: absolute;
     top: 12px;
     right: 12px;
     font-size: 1.5rem;
     color: var(--success);
+}
+
+.quest-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 6px;
+}
+
+.quest-delete {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: all 0.2s;
+    line-height: 1;
+}
+
+.quest-delete:hover {
+    color: var(--danger);
+    background: rgba(231,76,60,0.15);
 }
 
 .quest-difficulty {
@@ -369,11 +535,238 @@ body::before {
     box-shadow: 0 0 20px rgba(44,182,125,0.5);
 }
 
+.btn-danger {
+    background: linear-gradient(135deg, var(--danger), #c0392b);
+    color: white;
+}
+
+.btn-danger:hover {
+    box-shadow: 0 0 20px rgba(231,76,60,0.5);
+    transform: translateY(-1px);
+}
+
+.btn-legendary {
+    background: linear-gradient(135deg, var(--legendary), #d35400);
+    color: white;
+}
+
+.btn-legendary:hover {
+    box-shadow: 0 0 20px rgba(230,126,34,0.5);
+    transform: translateY(-1px);
+}
+
 .btn:disabled {
     opacity: 0.4;
     cursor: not-allowed;
     transform: none !important;
     box-shadow: none !important;
+}
+
+/* ===== Boss Banner ===== */
+.boss-banner {
+    margin-top: 24px;
+    background: linear-gradient(135deg, rgba(231,76,60,0.15), rgba(230,126,34,0.15));
+    border: 2px solid rgba(231,76,60,0.3);
+    border-radius: var(--radius);
+    padding: 24px;
+    animation: bossPulse 2s ease-in-out infinite;
+}
+
+.boss-banner.hidden {
+    display: none;
+}
+
+.boss-banner-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.boss-banner-icon {
+    font-size: 3rem;
+    animation: bossShake 0.5s ease-in-out infinite alternate;
+}
+
+.boss-banner-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.boss-banner-text strong {
+    font-size: 1.1rem;
+    color: var(--danger);
+}
+
+.boss-banner-text span {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.boss-banner .btn {
+    width: auto;
+    padding: 12px 28px;
+    flex-shrink: 0;
+    font-size: 1rem;
+}
+
+@keyframes bossPulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(231,76,60,0.1); }
+    50% { box-shadow: 0 0 40px rgba(231,76,60,0.25); }
+}
+
+@keyframes bossShake {
+    from { transform: translateX(-3px) rotate(-3deg); }
+    to { transform: translateX(3px) rotate(3deg); }
+}
+
+/* ===== Boss Modal ===== */
+.boss-modal-content {
+    min-width: 420px;
+    max-width: 500px;
+}
+
+.boss-header {
+    margin-bottom: 16px;
+}
+
+.boss-header h2 {
+    font-size: 1.6rem;
+    color: var(--danger);
+    text-shadow: 0 0 20px rgba(231,76,60,0.4);
+}
+
+.boss-subtitle {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.boss-sprite {
+    font-size: 5rem;
+    text-align: center;
+    margin: 16px 0;
+    transition: transform 0.15s;
+    filter: drop-shadow(0 0 20px rgba(231,76,60,0.4));
+}
+
+.boss-sprite.hit {
+    animation: bossHit 0.3s ease;
+}
+
+.boss-sprite.defend-anim {
+    animation: bossDefendAnim 0.4s ease;
+}
+
+@keyframes bossHit {
+    0% { transform: scale(1); }
+    30% { transform: scale(0.85) rotate(-5deg); filter: brightness(2) drop-shadow(0 0 30px rgba(231,76,60,0.8)); }
+    100% { transform: scale(1); }
+}
+
+@keyframes bossDefendAnim {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); filter: brightness(1.5) drop-shadow(0 0 30px rgba(123,104,238,0.8)); }
+    100% { transform: scale(1); }
+}
+
+.boss-hp-section {
+    margin-bottom: 12px;
+}
+
+.boss-hp-label, .boss-player-hp-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.boss-hp-bar-container {
+    height: 16px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.boss-hp-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--danger), #e74c3c);
+    border-radius: 8px;
+    transition: width 0.4s ease;
+}
+
+.boss-player-section {
+    margin-bottom: 16px;
+}
+
+.player-hp-bar-container {
+    height: 12px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.player-hp-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--success), #27ae60);
+    border-radius: 6px;
+    transition: width 0.4s ease;
+}
+
+.boss-combat-log {
+    background: rgba(0,0,0,0.3);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 16px;
+    max-height: 120px;
+    overflow-y: auto;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.log-player { color: var(--rare); }
+.log-boss { color: var(--danger); }
+.log-info { color: var(--accent-glow); }
+
+.boss-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.boss-actions .btn {
+    flex: 1;
+    padding: 12px 8px;
+    font-size: 0.82rem;
+}
+
+.boss-result {
+    text-align: center;
+}
+
+.boss-result.hidden {
+    display: none;
+}
+
+.boss-result-icon {
+    font-size: 4rem;
+    margin-bottom: 16px;
+}
+
+.boss-result h2 {
+    font-size: 1.5rem;
+    margin-bottom: 12px;
+}
+
+.boss-result p {
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+    font-size: 1rem;
 }
 
 /* ===== Shop ===== */
@@ -532,6 +925,7 @@ body::before {
 .toast.xp { border-left: 3px solid var(--xp-glow); }
 .toast.success { border-left: 3px solid var(--success); }
 .toast.info { border-left: 3px solid var(--rare); }
+.toast.danger { border-left: 3px solid var(--danger); }
 
 @keyframes toastIn {
     from { opacity: 0; transform: translateX(60px); }
@@ -654,6 +1048,25 @@ body::before {
 
     .shop-grid {
         grid-template-columns: repeat(2, 1fr);
+    }
+
+    .form-row {
+        flex-direction: column;
+    }
+
+    .boss-banner-content {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .boss-modal-content {
+        min-width: auto;
+        max-width: 95vw;
+        padding: 24px;
+    }
+
+    .boss-actions {
+        flex-direction: column;
     }
 }
 
